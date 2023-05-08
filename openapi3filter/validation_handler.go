@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/getkin/kin-openapi/routers"
-	legacyrouter "github.com/getkin/kin-openapi/routers/legacy"
+	"github.com/TykTechnologies/kin-openapi/openapi3"
+	"github.com/TykTechnologies/kin-openapi/routers"
+	legacyrouter "github.com/TykTechnologies/kin-openapi/routers/legacy"
 )
 
 type AuthenticationFunc func(context.Context, *AuthenticationInput) error
