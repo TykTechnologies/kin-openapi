@@ -15,8 +15,7 @@ import (
 	"sync"
 	"unicode/utf16"
 
-	"github.com/go-openapi/jsonpointer"
-	"github.com/mohae/deepcopy"
+	"github.com/TykTechnologies/kin-openapi/jsoninfo"
 )
 
 const (
