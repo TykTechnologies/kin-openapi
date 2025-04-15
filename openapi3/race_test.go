@@ -5,7 +5,10 @@ import (
 	"testing"
 
 	"github.com/TykTechnologies/kin-openapi/openapi3"
+
 	"github.com/stretchr/testify/require"
+
+	"github.com/TykTechnologies/kin-openapi/openapi3"
 )
 
 func TestRaceyPatternSchema(t *testing.T) {
