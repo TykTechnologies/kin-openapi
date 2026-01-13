@@ -1,6 +1,6 @@
 module github.com/TykTechnologies/kin-openapi
 
-go 1.22.5
+go 1.24.6
 
 require (
 	github.com/go-openapi/jsonpointer v0.21.0
