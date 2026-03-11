@@ -414,6 +414,14 @@ components:
 			expectedErr: "invalid paths: must be an object",
 		},
 		{
+			name: "OAS 3.1 missing paths but has components",
+			spec: strings.Replace(strings.Replace(spec, version, "\nopenapi: 3.1.0\n", 1), paths, "", 1),
+		},
+		{
+			name: "OAS 3.1 missing paths but has webhooks",
+			spec: strings.Replace(strings.Replace(spec, version, "\nopenapi: 3.1.0\n", 1), paths, "webhooks:\n  myWebhook:\n    post:\n      responses:\n        '200':\n          description: OK\n", 1),
+		},
+		{
 			name: "externalDocs section is invalid",
 			spec: strings.Replace(spec, externalDocs,
 				strings.ReplaceAll(externalDocs, "url: https://root-ext-docs.com", "url: ''"), 1),
