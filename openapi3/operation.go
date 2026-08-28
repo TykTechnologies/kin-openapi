@@ -210,7 +210,7 @@ func (operation *Operation) Validate(ctx context.Context, opts ...ValidationOpti
 		if err := v.Validate(ctx); err != nil {
 			return err
 		}
-	} else {
+	} else if !getValidationOptions(ctx).jsonSchema2020ValidationEnabled {
 		return errors.New("value of responses must be an object")
 	}
 
