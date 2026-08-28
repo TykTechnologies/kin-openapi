@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/go-openapi/jsonpointer"
 )
@@ -215,13 +216,10 @@ func (doc *T) Validate(ctx context.Context, opts ...ValidationOption) error {
 			return wrap(err)
 		}
 	} else {
-		return wrap(errors.New("must be an object"))
-	}
-
-	wrap = func(e error) error { return fmt.Errorf("invalid security: %w", e) }
-	if v := doc.Security; v != nil {
-		if err := v.Validate(ctx); err != nil {
-			return wrap(err)
+		if strings.HasPrefix(doc.OpenAPI, "3.1") && (doc.Components != nil || len(doc.Webhooks) > 0) {
+			// paths is optional in OpenAPI 3.1 if components or webhooks is present
+		} else {
+			return wrap(errors.New("must be an object"))
 		}
 	}
 
