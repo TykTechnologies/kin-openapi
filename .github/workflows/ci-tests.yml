@@ -20,9 +20,11 @@ jobs:
       contents: read
     steps:
       - name: "Checkout PR"
+        # No token: the repo is public with no submodules or LFS, so checkout-pr's
+        # optional `token` input is omitted and actions/checkout falls back to
+        # ${{ github.token }}. ORG_GH_TOKEN was migrated from a PAT to a GitHub App
+        # org-wide while this repo's Actions were disabled, so it no longer resolves here.
         uses: TykTechnologies/github-actions/.github/actions/checkout-pr@895df6aef134e6fa49a25fca3b60ba089671eb43 # main @ 2026-09-17
-        with:
-          token: ${{ secrets.ORG_GH_TOKEN }}
 
       - name: "Get base ref"
         run: |

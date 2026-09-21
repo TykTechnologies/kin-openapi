@@ -2,6 +2,8 @@ package openapi3
 
 import (
 	"encoding/json"
+	"fmt"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -33,37 +35,44 @@ paths:
                 $ref: http://schemas.sentex.io/store/categories.json
 `[1:])
 
-	// When that site fails to respond:
-	// see https://github.com/getkin/kin-openapi/issues/495
+	// http://schemas.sentex.io no longer resolves (NXDOMAIN), so the two schemas
+	// this spec pulls in are served from here instead of over the network. Upstream
+	// made the same change; see https://github.com/getkin/kin-openapi/issues/495.
+	resolver := func(loader *Loader, location *url.URL) ([]byte, error) {
+		switch location.String() {
+		case "http://schemas.sentex.io/store/categories.json":
+			return []byte(`{
+			  "$id": "http://schemas.sentex.io/store/categories.json",
+			  "$schema": "http://json-schema.org/draft-07/schema#",
+			  "description": "array of category strings",
+			  "type": "array",
+			  "items": {
+			    "allOf": [
+			      {
+			        "$ref": "http://schemas.sentex.io/store/category.json"
+			      }
+			    ]
+			  }
+			}`), nil
 
-	// http://schemas.sentex.io/store/categories.json
-	// {
-	//   "$id": "http://schemas.sentex.io/store/categories.json",
-	//   "$schema": "http://json-schema.org/draft-07/schema#",
-	//   "description": "array of category strings",
-	//   "type": "array",
-	//   "items": {
-	//     "allOf": [
-	//       {
-	//         "$ref": "http://schemas.sentex.io/store/category.json"
-	//       }
-	//     ]
-	//   }
-	// }
+		case "http://schemas.sentex.io/store/category.json":
+			return []byte(`{
+			  "$id": "http://schemas.sentex.io/store/category.json",
+			  "$schema": "http://json-schema.org/draft-07/schema#",
+			  "description": "category name for products",
+			  "type": "string",
+			  "pattern": "^[A-Za-z0-9\\-]+$",
+			  "minimum": 1,
+			  "maximum": 30
+			}`), nil
+		}
 
-	// http://schemas.sentex.io/store/category.json
-	// {
-	//   "$id": "http://schemas.sentex.io/store/category.json",
-	//   "$schema": "http://json-schema.org/draft-07/schema#",
-	//   "description": "category name for products",
-	//   "type": "string",
-	//   "pattern": "^[A-Za-z0-9\\-]+$",
-	//   "minimum": 1,
-	//   "maximum": 30
-	// }
+		return nil, fmt.Errorf("unexpected remote ref %q", location)
+	}
 
 	sl := NewLoader()
 	sl.IsExternalRefsAllowed = true
+	sl.ReadFromURIFunc = resolver
 
 	doc, err := sl.LoadFromData(spec)
 	require.NoError(t, err)
