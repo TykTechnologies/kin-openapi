@@ -10,10 +10,14 @@ env:
   TIMEOUT: 20m
   BRANCH_NAME: ${{ github.base_ref || github.ref_name }} # base_ref for PRs is 'master', but merges read in ref_name
 
+permissions: {}
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     if: ${{ !github.event.pull_request.draft }}
+    permissions:
+      contents: read
     steps:
       - name: "Checkout PR"
         uses: TykTechnologies/github-actions/.github/actions/checkout-pr@895df6aef134e6fa49a25fca3b60ba089671eb43 # main @ 2026-09-17
@@ -53,6 +57,8 @@ jobs:
 
   unit-tests:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       latest-version: ${{ steps.get-latest-version.outputs.version }}
     steps:
