@@ -929,6 +929,11 @@ func makeObject(props map[string]string, schema *openapi3.SchemaRef) (map[string
 // an attacker-supplied index (e.g. from a deepObject query parameter) drives
 // an allocation proportional to the index itself, regardless of how many
 // elements were actually provided.
+//
+// A schema's maxItems cannot stand in for this bound: ValidateParameter only
+// applies the schema once decoding has returned, so by then both this slice and
+// buildResObj's copy of it have already been allocated. The limit has to be
+// enforced here, while the array is being reconstructed.
 const maxSliceMapToSliceGap = 10000
 
 // example: map[0:map[key:true] 1:map[key:false]] -> [map[key:true] map[key:false]]
