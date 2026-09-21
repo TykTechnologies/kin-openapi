@@ -1,0 +1,30 @@
+# yamllint disable rule:line-length rule:truthy
+---
+name: SentinelOne CNS Scan
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+    branches:
+      - master
+
+permissions: {}
+
+jobs:
+  s1_scanner:
+    uses: TykTechnologies/github-actions/.github/workflows/s1-cns-scan.yml@895df6aef134e6fa49a25fca3b60ba089671eb43  # production
+    permissions:
+      contents: read
+    with:
+      # No IaC in this repo (pure Go library, no Dockerfiles or terraform).
+      iac_enabled: false
+      policy_id: ${{ vars.S1_POLICY_ID }}
+      scope_type: ACCOUNT
+    secrets:
+      S1_API_TOKEN: ${{ secrets.S1_API_TOKEN }}
+      CONSOLE_URL: ${{ secrets.S1_CONSOLE_URL }}
+      SCOPE_ID: ${{ secrets.S1_SCOPE_ID }}
