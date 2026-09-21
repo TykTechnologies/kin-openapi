@@ -1,0 +1,23 @@
+# yamllint disable rule:line-length rule:truthy
+---
+name: Dependency Guard
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+      - labeled
+
+permissions: {}
+
+jobs:
+  dep-guard:
+    uses: TykTechnologies/github-actions/.github/workflows/dependency-guard.yml@895df6aef134e6fa49a25fca3b60ba089671eb43  # production
+    permissions:
+      contents: read
+    with:
+      label_name: deps-reviewed
+      extra_paths: ""
