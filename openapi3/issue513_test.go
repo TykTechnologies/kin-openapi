@@ -38,7 +38,7 @@ paths:
 	// http://schemas.sentex.io no longer resolves (NXDOMAIN), so the two schemas
 	// this spec pulls in are served from here instead of over the network. Upstream
 	// made the same change; see https://github.com/getkin/kin-openapi/issues/495.
-	resolver := func(loader *Loader, location *url.URL) ([]byte, error) {
+	resolver := func(_ *Loader, location *url.URL) ([]byte, error) {
 		switch location.String() {
 		case "http://schemas.sentex.io/store/categories.json":
 			return []byte(`{
