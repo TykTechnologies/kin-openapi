@@ -32,11 +32,16 @@ var (
 	patterns        = flag.Bool("patterns", defaultPatterns, "when false, allows schema patterns unsupported by the Go regexp engine")
 )
 
+var (
+	allErrors     = flag.Bool("all-errors", false, "validates every component, path operation and webhook separately and reports all failures, followed by a summary grouped by cause")
+	allowSiblings = flag.String("allow-extra-siblings", "", "comma-separated fields that are allowed next to known fields, e.g. contentMediaType")
+)
+
 func main() {
 	flag.Parse()
 	filename := flag.Arg(0)
 	if len(flag.Args()) != 1 || filename == "" {
-		log.Fatalf("Usage: go run github.com/getkin/kin-openapi/cmd/validate@latest [--circular] [--defaults] [--examples] [--ext] [--patterns] -- <local YAML or JSON file>\nGot: %+v\n", os.Args)
+		log.Fatalf("Usage: go run github.com/getkin/kin-openapi/cmd/validate@latest [--all-errors] [--allow-extra-siblings=a,b] [--defaults] [--examples] [--ext] [--patterns] -- <local YAML or JSON file>\nGot: %+v\n", os.Args)
 	}
 
 	data, err := os.ReadFile(filename)
@@ -81,6 +86,20 @@ func main() {
 		if !*patterns {
 			opts = append(opts, openapi3.DisableSchemaPatternValidation())
 		}
+		var allowed []string
+		if *allowSiblings != "" {
+			allowed = strings.Split(*allowSiblings, ",")
+			opts = append(opts, openapi3.AllowExtraSiblingFields(allowed...))
+		}
+
+		if *allErrors {
+			failures := validateAll(openapi3.WithValidationOptions(loader.Context, opts...), doc, allowed)
+			if len(failures) != 0 {
+				printFailures(os.Stdout, failures)
+				os.Exit(1)
+			}
+			return
+		}
 
 		if err = doc.Validate(loader.Context, opts...); err != nil {
 			log.Fatalln("Validation error:", err)
@@ -96,6 +115,9 @@ func main() {
 		}
 		if *ext != defaultExt {
 			log.Fatal("Flag --ext is only for OpenAPIv3")
+		}
+		if *allErrors || *allowSiblings != "" {
+			log.Fatal("Flags --all-errors and --allow-extra-siblings are only for OpenAPIv3")
 		}
 		if *patterns != defaultPatterns {
 			log.Fatal("Flag --patterns is only for OpenAPIv3")
